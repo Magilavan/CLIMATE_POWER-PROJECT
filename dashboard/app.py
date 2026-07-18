@@ -14,7 +14,11 @@ ROOT       = Path(__file__).resolve().parent.parent
 REPORT_DIR = ROOT / "reports"
 DATA_DIR   = ROOT / "data"
 
-st.set_page_config(page_title="TN Power Planning", layout="wide", page_icon="⚡")
+st.set_page_config(
+    page_title="Tamil Nadu Climate Power Project",
+    page_icon="🌱",
+    layout="wide"
+)
 
 @st.cache_data
 def load_csv(name, dates=None):
@@ -38,13 +42,40 @@ with st.sidebar:
     else:
         st.info("You're in **Expert Mode** — full metrics, model comparisons, and technical charts.")
 
-# ── Load data (shared) ──────────────────────────────────────────────────────
-renewables = load_csv("renewable_potential.csv",      dates=["date"])
-emissions  = load_csv("emissions_estimates.csv",       dates=["date"])
-opt_mix    = load_csv("optimized_generation_mix.csv",  dates=["date"])
+# ── Load only lightweight data upfront (KPIs only) ─────────────────────────
 model_comp = load_csv("model_comparison_final.csv")
-forecast   = load_csv("future_forecast_2026_2029.csv", dates=["date"])
-hist       = load_csv("data/merged_dataset.csv",       dates=["date"])
+
+@st.cache_data
+def load_renewables():
+    df = load_csv("renewable_potential.csv", dates=["date"])
+    return df
+
+@st.cache_data
+def load_emissions():
+    return load_csv("emissions_estimates.csv", dates=["date"])
+
+@st.cache_data
+def load_opt_mix():
+    return load_csv("optimized_generation_mix.csv", dates=["date"])
+
+@st.cache_data
+def load_forecast():
+    return load_csv("future_forecast_2026_2029.csv", dates=["date"])
+
+@st.cache_data
+def load_hist():
+    return load_csv("data/merged_dataset.csv", dates=["date"])
+
+@st.cache_data
+def load_annual():
+    return load_csv("annual_emissions_scenarios.csv")
+
+def resample_weekly(df, date_col="date"):
+    """Downsample daily data to weekly for faster chart rendering."""
+    return df.set_index(date_col).resample("W").mean().reset_index()
+
+COLORS = {"coal": "#555555", "gas": "#f4a261", "hydro": "#457b9d",
+          "nuclear": "#9b2226", "solar": "#e9c46a", "wind": "#2a9d8f"}
 
 COLORS = {"coal": "#555555", "gas": "#f4a261", "hydro": "#457b9d",
           "nuclear": "#9b2226", "solar": "#e9c46a", "wind": "#2a9d8f"}
@@ -75,6 +106,9 @@ if view == "🔬 Expert Mode":
     else:
         col1.metric("Best model MAPE", "—")
 
+    renewables = load_renewables()
+    emissions  = load_emissions()
+
     if renewables is not None:
         latest = renewables.iloc[-1]
         col2.metric("Latest forecasted peak demand", f"{latest['peak_demand_mw']:,.0f} MW")
@@ -86,18 +120,6 @@ if view == "🔬 Expert Mode":
 
     st.divider()
 
-    if renewables is not None:
-        min_date, max_date = renewables["date"].min(), renewables["date"].max()
-        date_range = st.slider(
-            "Date range",
-            min_value=min_date.to_pydatetime(), max_value=max_date.to_pydatetime(),
-            value=(max(min_date, max_date - pd.Timedelta(days=730)).to_pydatetime(),
-                   max_date.to_pydatetime()),
-            format="YYYY-MM-DD",
-        )
-    else:
-        date_range = None
-
     tab1, tab2, tab3, tab4 = st.tabs(
         ["📈 Demand Forecast", "☀️ Renewable Potential", "🌍 Emissions", "⚡ Optimized Generation Mix"]
     )
@@ -106,45 +128,32 @@ if view == "🔬 Expert Mode":
         st.subheader("Peak Demand — Model Comparison")
         if model_comp is not None:
             st.dataframe(model_comp.style.format("{:.3f}"), use_container_width=True)
-        img_path = ROOT / "outputs" / "hybrid_model_vs_actual.png"
-        if img_path.exists():
-            st.image(str(img_path), caption="Main model (Fourier+Trend + GBM residual) vs. actual",
-                     use_container_width=True)
+        # use pre-saved PNG — no re-rendering needed
+        for img in ["hybrid_model_vs_actual.png", "baseline_comparison.png"]:
+            p = ROOT / "outputs" / img
+            if p.exists():
+                st.image(str(p), use_container_width=True)
 
     with tab2:
         st.subheader("Solar + Wind Generation Potential vs. Demand")
-        if renewables is not None and date_range:
-            filtered = renewables[(renewables["date"] >= date_range[0]) & (renewables["date"] <= date_range[1])]
-            fig, ax = plt.subplots(figsize=(12, 5))
-            ax.plot(filtered["date"], filtered["peak_demand_mw"], label="Peak Demand", color="black")
-            ax.plot(filtered["date"], filtered["renewable_potential_mw"], label="Renewable Potential", color="#2a9d8f")
-            ax.fill_between(filtered["date"], filtered["peak_demand_mw"], filtered["renewable_potential_mw"],
-                            where=(filtered["peak_demand_mw"] > filtered["renewable_potential_mw"]),
-                            color="#e63946", alpha=0.15, label="Supply gap")
-            ax.legend(); ax.set_ylabel("MW")
-            st.pyplot(fig)
-            coverage = (filtered["renewable_potential_mw"] / filtered["peak_demand_mw"]).mean() * 100
-            st.metric("Avg. renewable coverage of peak demand (selected range)", f"{coverage:.1f}%")
+        p = ROOT / "outputs" / "renewable_potential_vs_demand.png"
+        if p.exists():
+            st.image(str(p), use_container_width=True)
+        if renewables is not None:
+            coverage = (renewables["renewable_potential_mw"] / renewables["peak_demand_mw"]).mean() * 100
+            st.metric("Avg. renewable coverage of peak demand", f"{coverage:.1f}%")
 
     with tab3:
         st.subheader("Grid Carbon Emissions")
-        if emissions is not None and date_range:
-            filtered = emissions[(emissions["date"] >= date_range[0]) & (emissions["date"] <= date_range[1])]
-            fig, ax = plt.subplots(figsize=(12, 5))
-            ax.plot(filtered["date"], filtered["grid_emissions_tonnes"], label="Current mix", color="black")
-            ax.plot(filtered["date"], filtered["emissions_scenario_plus10pp_re"], label="+10pp renewable", color="#f4a261")
-            ax.plot(filtered["date"], filtered["emissions_scenario_plus20pp_re"], label="+20pp renewable", color="#2a9d8f")
-            ax.legend(); ax.set_ylabel("Tonnes CO2 / day")
-            st.pyplot(fig)
+        p = ROOT / "outputs" / "emissions_scenarios.png"
+        if p.exists():
+            st.image(str(p), use_container_width=True)
 
     with tab4:
-        st.subheader("Optimized Generation Mix (last 90 days of data)")
-        if opt_mix is not None:
-            om = opt_mix.set_index("date")
-            fig, ax = plt.subplots(figsize=(12, 5))
-            om[["coal", "gas", "hydro", "nuclear", "solar", "wind"]].plot.area(ax=ax, alpha=0.85)
-            ax.set_ylabel("MW")
-            st.pyplot(fig)
+        st.subheader("Optimized Generation Mix")
+        p = ROOT / "outputs" / "optimized_generation_mix.png"
+        if p.exists():
+            st.image(str(p), use_container_width=True)
             st.caption("Simplified LP optimizer (cost + emissions weighted objective).")
 
     st.divider()
@@ -159,6 +168,8 @@ else:
     st.markdown("---")
 
     # KPIs
+    renewables = load_renewables()
+    emissions  = load_emissions()
     k1, k2, k3, k4 = st.columns(4)
     if renewables is not None:
         latest_demand    = renewables["peak_demand_mw"].iloc[-1]
@@ -183,15 +194,19 @@ else:
         "but for electricity, years into the future."
     )
     if forecast is not None and hist is not None:
+        forecast = load_forecast()
+        hist     = load_hist()
         hist_tail = hist[hist["date"] >= "2024-01-01"][["date", "peak_demand_mw"]]
+        hist_tail = resample_weekly(hist_tail)
+        fc_weekly = resample_weekly(forecast[["date","predicted_peak_demand_mw"]])
         fig, ax = plt.subplots(figsize=(14, 5))
         ax.plot(hist_tail["date"], hist_tail["peak_demand_mw"],
                 color="#333333", linewidth=1.5, label="Past (actual usage)")
-        ax.plot(forecast["date"], forecast["predicted_peak_demand_mw"],
+        ax.plot(fc_weekly["date"], fc_weekly["predicted_peak_demand_mw"],
                 color="#2a9d8f", linewidth=2, label="Future (AI forecast)")
         ax.axvline(pd.Timestamp("2026-07-18"), color="red", linestyle="--",
                    linewidth=1.2, label="Forecast starts here")
-        ax.fill_between(forecast["date"], forecast["predicted_peak_demand_mw"],
+        ax.fill_between(fc_weekly["date"], fc_weekly["predicted_peak_demand_mw"],
                         alpha=0.12, color="#2a9d8f")
         ax.set_ylabel("Peak Power Demand (MW)", fontsize=11)
         ax.set_title("Electricity Demand — Past & Future (2024–2029)", fontsize=13)
@@ -222,6 +237,7 @@ else:
     )
     if renewables is not None:
         recent = renewables[renewables["date"] >= renewables["date"].max() - pd.Timedelta(days=365)]
+        recent = resample_weekly(recent)
         fig, ax = plt.subplots(figsize=(14, 5))
         ax.plot(recent["date"], recent["peak_demand_mw"],
                 color="#333333", linewidth=1.5, label="Power needed")
@@ -290,6 +306,7 @@ else:
         "and pollution minimal. Here's what the last 90 days looked like."
     )
     if opt_mix is not None:
+        opt_mix = load_opt_mix()
         om      = opt_mix.set_index("date")
         sources = ["coal", "gas", "hydro", "nuclear", "solar", "wind"]
         labels  = {"coal": "Coal 🏭", "gas": "Gas 🔥", "hydro": "Hydro 💧",
