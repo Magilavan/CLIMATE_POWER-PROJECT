@@ -20,6 +20,21 @@ st.set_page_config(
     layout="wide"
 )
 
+st.title("Tamil Nadu Climate Project")
+
+st.write("""
+Welcome to the Tamil Nadu Climate Project.
+
+This project analyzes climate conditions across Tamil Nadu using historical weather data.
+
+Features include:
+- Temperature analysis
+- Rainfall analysis
+- Climate trends
+- District-wise climate visualization
+- Data-driven insights
+""")
+
 @st.cache_data
 def load_csv(name, dates=None):
     p = REPORT_DIR / name
