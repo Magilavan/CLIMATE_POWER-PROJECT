@@ -1,0 +1,68 @@
+======================================================================
+  DATA QUALITY REPORT — Tamil Nadu Climate-Electricity Pipeline
+======================================================================
+
+▸ DATE RANGE
+  Start : 2010-01-01
+  End   : 2026-07-17
+  Total days in dataset : 6042
+  Expected calendar days: 6042
+  Coverage             : 100.0%
+
+▸ DATE GAPS IN INDEX: 0 gap(s)
+  None — index is contiguous ✓
+
+▸ MISSING VALUES BEFORE IMPUTATION
+  Column                      Missing %     Count
+  -------------------------  ----------  --------
+  temperature_2m_c                0.05%         3
+  humidity_2m_pct                 0.05%         3
+  precipitation_mm                0.05%         3
+  wind_speed_10m_ms               0.05%         3
+  solar_irradiance_kwh_m2         0.10%         6
+  demand_mwh                      0.00%         0
+  generation_mwh                  0.00%         0
+  peak_demand_mw                  0.00%         0
+  owid_co2                        0.00%         0
+  owid_co2_per_capita             0.00%         0
+  owid_coal_co2                   0.00%         0
+  owid_oil_co2                    0.00%         0
+  owid_gas_co2                    0.00%         0
+  population                      0.00%         0
+
+▸ MISSING VALUES AFTER IMPUTATION
+  Column                      Missing %     Count  Strategy
+  -------------------------  ----------  --------  -------------------------
+  temperature_2m_c                0.00%         0  linear interpolate
+  humidity_2m_pct                 0.00%         0  linear interpolate
+  precipitation_mm                0.00%         0  fill 0 (no rain assumed)
+  wind_speed_10m_ms               0.00%         0  linear interpolate
+  solar_irradiance_kwh_m2         0.00%         0  linear interpolate
+  demand_mwh                      0.00%         0  linear interpolate
+  generation_mwh                  0.00%         0  linear interpolate
+  peak_demand_mw                  0.00%         0  linear interpolate
+  owid_co2                        0.00%         0  forward-fill
+  owid_co2_per_capita             0.00%         0  forward-fill
+  owid_coal_co2                   0.00%         0  forward-fill
+  owid_oil_co2                    0.00%         0  forward-fill
+  owid_gas_co2                    0.00%         0  forward-fill
+  population                      0.00%         0  forward-fill (annual data)
+
+▸ DESCRIPTIVE STATISTICS (after imputation)
+                                 mean           std           min           max
+temperature_2m_c         2.766940e+01  2.800354e+00  2.040000e+01  3.540000e+01
+humidity_2m_pct          6.956571e+01  1.146666e+01  3.551000e+01  9.540000e+01
+precipitation_mm         2.415379e+00  5.150905e+00  0.000000e+00  7.746000e+01
+wind_speed_10m_ms        3.727709e+00  1.337243e+00  6.900000e-01  9.350000e+00
+solar_irradiance_kwh_m2  5.338272e+00  1.201316e+00  4.078000e-01  7.787800e+00
+demand_mwh               1.480993e+05  3.175372e+04  9.436410e+04  2.055923e+05
+generation_mwh           1.480753e+05  3.179890e+04  9.499902e+04  2.080619e+05
+peak_demand_mw           8.330587e+03  1.786147e+03  5.307981e+03  1.156456e+04
+owid_co2                 2.468969e+03  4.736972e+02  1.678530e+03  3.193478e+03
+owid_co2_per_capita      1.798278e+00  2.624887e-01  1.350000e+00  2.201000e+00
+owid_coal_co2            1.595128e+03  3.384947e+02  1.015983e+03  2.108033e+03
+owid_oil_co2             6.095261e+02  9.904619e+01  4.406920e+02  7.473330e+02
+owid_gas_co2             1.264358e+02  1.374513e+01  1.030620e+02  1.493520e+02
+population               1.364734e+09  6.882324e+07  1.243482e+09  1.463866e+09
+
+======================================================================

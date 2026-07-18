@@ -1,0 +1,6 @@
+Model,RMSE,MAE,MAPE,R2
+"Fourier-ARIMAX (P365+P7 Fourier, temp, humid)",251.6,197.2,2.341,0.9801
+"Linear Regression (lag1, lag7, roll7, temp, humid)",256.5,200.6,2.364,0.9793
+"Seasonal Naive (weekly, k=7)",325.2,262.1,3.139,0.9668
+"Seasonal Naive (annual, k=365)",333.6,257.0,3.056,0.965
+Naive (Lag-1),340.4,259.1,3.078,0.9636

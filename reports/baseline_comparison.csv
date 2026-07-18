@@ -1,0 +1,6 @@
+,RMSE,MAE,MAPE,R2
+Naive (lag-1),506.809,405.263,4.322,0.888
+"Seasonal Naive (weekly, k=7)",506.809,405.263,4.322,0.888
+"Seasonal Naive (annual, k=365)",500.039,402.098,4.262,0.891
+"Linear Regression (lag1,lag7,roll7,temp,humid)",405.047,323.442,3.41,0.929
+Fourier+Exog Regression (annual+weekly seasonality),371.534,298.925,3.196,0.94

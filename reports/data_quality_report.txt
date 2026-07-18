@@ -1,0 +1,40 @@
+======================================================================
+  DATA QUALITY REPORT — Tamil Nadu Climate-Electricity Pipeline
+======================================================================
+
+NOTE: this run uses a SYNTHETIC dataset (see data/generate_synthetic_data.py)
+built to match the statistical properties of the real pipeline output.
+Swap in your real merged_dataset.csv to get a report on real data.
+
+Date range: 2010-01-01 to 2026-07-17
+Total rows: 6042   Expected calendar days: 6042
+Coverage: 100.0%
+Date gaps: 0
+
+Missing values per column:
+  none
+
+Descriptive statistics:
+                                        mean              std                  min                  max
+date                     2018-04-09 12:00:00              NaN  2010-01-01 00:00:00  2026-07-17 00:00:00
+temperature_2m_c                   27.743739         3.115618                19.63                35.84
+humidity_2m_pct                    69.415369        10.335098                36.98                 98.0
+precipitation_mm                    0.843539         2.097289                  0.0                24.81
+wind_speed_10m_ms                   3.674265         1.276126                  0.5                 7.03
+solar_irradiance_kwh_m2             5.303245         0.859407                3.225                7.642
+demand_mwh                     148652.711552     30338.394157              85009.8             224996.6
+generation_mwh                 148720.672559     30405.056824              84438.4             223782.7
+peak_demand_mw                   8364.869778      1692.961508               5100.0              11900.0
+coal_share                           0.60781         0.077832               0.4278               0.7428
+gas_share                           0.060236         0.000646                 0.06               0.0637
+hydro_share                         0.060236         0.000646                 0.06               0.0637
+nuclear_share                       0.050197         0.000539                 0.05               0.0531
+solar_share                          0.11519         0.049956               0.0262               0.2199
+wind_share                          0.106332         0.030912               0.0456               0.1912
+owid_co2                         2392.822029       450.425529               1651.6               3181.8
+owid_coal_co2                    1543.381397       290.521285               1065.3               2052.3
+owid_oil_co2                       591.03719       111.257694                407.9                785.9
+owid_gas_co2                      122.035038        22.984297                 84.2                162.3
+population                 1348014895.729891  64527522.310032         1243000000.0         1459000000.0
+owid_co2_per_capita                 1.763181         0.249507                1.329                2.181
+======================================================================

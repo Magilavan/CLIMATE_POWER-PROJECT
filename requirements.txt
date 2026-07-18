@@ -1,0 +1,19 @@
+# Core (tested and used to build this project)
+numpy
+pandas
+scikit-learn
+scipy
+matplotlib
+joblib
+
+# For the LSTM model (src/lstm_model.py) — not installed/tested in the sandbox
+# that built this project (no internet access there)
+tensorflow>=2.15
+shap
+
+# For the dashboard (dashboard/app.py) — not installed/tested in the sandbox
+streamlit
+
+# Optional: if you want the literal statsmodels SARIMAX baseline in addition
+# to the Fourier-regression baseline already implemented in src/baselines.py
+statsmodels
