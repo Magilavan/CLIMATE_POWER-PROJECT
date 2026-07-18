@@ -142,18 +142,18 @@ if view == "🔬 Expert Mode":
     with tab1:
         st.subheader("Peak Demand — Model Comparison")
         if model_comp is not None:
-            st.dataframe(model_comp.style.format("{:.3f}"), use_container_width=True)
+            st.dataframe(model_comp.style.format("{:.3f}"), width='stretch')
         # use pre-saved PNG — no re-rendering needed
         for img in ["hybrid_model_vs_actual.png", "baseline_comparison.png"]:
             p = ROOT / "outputs" / img
             if p.exists():
-                st.image(str(p), use_container_width=True)
+                st.image(str(p), width='stretch')
 
     with tab2:
         st.subheader("Solar + Wind Generation Potential vs. Demand")
         p = ROOT / "outputs" / "renewable_potential_vs_demand.png"
         if p.exists():
-            st.image(str(p), use_container_width=True)
+            st.image(str(p), width='stretch')
         if renewables is not None:
             coverage = (renewables["renewable_potential_mw"] / renewables["peak_demand_mw"]).mean() * 100
             st.metric("Avg. renewable coverage of peak demand", f"{coverage:.1f}%")
@@ -162,13 +162,13 @@ if view == "🔬 Expert Mode":
         st.subheader("Grid Carbon Emissions")
         p = ROOT / "outputs" / "emissions_scenarios.png"
         if p.exists():
-            st.image(str(p), use_container_width=True)
+            st.image(str(p), width='stretch')
 
     with tab4:
         st.subheader("Optimized Generation Mix")
         p = ROOT / "outputs" / "optimized_generation_mix.png"
         if p.exists():
-            st.image(str(p), use_container_width=True)
+            st.image(str(p), width='stretch')
             st.caption("Simplified LP optimizer (cost + emissions weighted objective).")
 
     st.divider()
@@ -208,9 +208,9 @@ else:
         "to predict how demand will grow. Think of it like a weather forecast — "
         "but for electricity, years into the future."
     )
+    forecast = load_forecast()
+    hist     = load_hist()
     if forecast is not None and hist is not None:
-        forecast = load_forecast()
-        hist     = load_hist()
         hist_tail = hist[hist["date"] >= "2024-01-01"][["date", "peak_demand_mw"]]
         hist_tail = resample_weekly(hist_tail)
         fc_weekly = resample_weekly(forecast[["date","predicted_peak_demand_mw"]])
@@ -320,8 +320,8 @@ else:
         "Our smart optimizer figures out the best mix each day to keep costs low "
         "and pollution minimal. Here's what the last 90 days looked like."
     )
+    opt_mix = load_opt_mix()
     if opt_mix is not None:
-        opt_mix = load_opt_mix()
         om      = opt_mix.set_index("date")
         sources = ["coal", "gas", "hydro", "nuclear", "solar", "wind"]
         labels  = {"coal": "Coal 🏭", "gas": "Gas 🔥", "hydro": "Hydro 💧",
